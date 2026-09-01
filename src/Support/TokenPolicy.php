@@ -21,6 +21,6 @@ final class TokenPolicy
     {
         $maximum = new \DateTimeImmutable('+'.config('api-access.maximum_token_days', 90).' days');
 
-        return $requested === null || $requested > $maximum ? $maximum : $requested;
+        return ! $requested instanceof \DateTimeImmutable || $requested > $maximum ? $maximum : $requested;
     }
 }
