@@ -20,7 +20,7 @@
       "name": "api-access"
     }
   },
-  "version": "1.4.14",
+  "version": "1.4.15",
   "autoload-dev": {
     "psr-4": {
       "Liberu\\Foundation\\ApiAccess\\Tests\\": "tests/"
