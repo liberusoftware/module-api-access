@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.2 - 2026-11-13
+
+- Consolidate legacy middleware aliases, the API rate limiter, and transactional reservations from the host copies.
+- Scope billing replays by team and release reservations after failed or streamed requests.
+- Preserve legacy replay headers and enforce 100% source coverage across all implementations.
+
 ## 1.6.1 - 2026-11-13
 
 - Cover token scope and expiry policy, idempotency replay, expiry, isolation, and insert races.

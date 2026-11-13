@@ -86,9 +86,10 @@ it('recovers the winning request when another process inserts the same key', fun
     $query = Mockery::mock(Builder::class);
     DB::shouldReceive('table')->with('api_idempotency_keys')->andReturn($query);
     $query->shouldReceive('where')->andReturnSelf();
-    $query->shouldReceive('delete')->once()->andReturn(0);
+    $query->shouldReceive('lockForUpdate')->andReturnSelf();
+    DB::shouldReceive('transaction')->once()->andReturnUsing(fn (Closure $callback) => $callback());
     $query->shouldReceive('first')->twice()->andReturn(null, $winner);
-    $query->shouldReceive('insert')->once()->andThrow(new RuntimeException('duplicate key'));
+    $query->shouldReceive('insertOrIgnore')->once()->andReturn(0);
     $store = new IdempotencyStore();
 
     if ($samePayload) {
@@ -104,10 +105,24 @@ it('propagates an insert failure when there is no winning request to replay', fu
     $query = Mockery::mock(Builder::class);
     DB::shouldReceive('table')->with('api_idempotency_keys')->andReturn($query);
     $query->shouldReceive('where')->andReturnSelf();
-    $query->shouldReceive('delete')->once()->andReturn(0);
-    $query->shouldReceive('first')->twice()->andReturnNull();
-    $query->shouldReceive('insert')->once()->andThrow($failure);
+    $query->shouldReceive('lockForUpdate')->andReturnSelf();
+    DB::shouldReceive('transaction')->once()->andReturnUsing(fn (Closure $callback) => $callback());
+    $query->shouldReceive('first')->once()->andReturnNull();
+    $query->shouldReceive('insertOrIgnore')->once()->andThrow($failure);
 
     expect(fn () => (new IdempotencyStore())->begin('customer-1', 'checkout-1', 'request'))
         ->toThrow($failure);
+});
+
+it('does not claim a reservation when an ignored insert has no winning row', function () {
+    $query = Mockery::mock(Builder::class);
+    DB::shouldReceive('transaction')->once()->andReturnUsing(fn (Closure $callback) => $callback());
+    DB::shouldReceive('table')->with('api_idempotency_keys')->andReturn($query);
+    $query->shouldReceive('where')->andReturnSelf();
+    $query->shouldReceive('lockForUpdate')->twice()->andReturnSelf();
+    $query->shouldReceive('first')->twice()->andReturnNull();
+    $query->shouldReceive('insertOrIgnore')->once()->andReturn(0);
+
+    expect(fn () => (new IdempotencyStore())->begin('customer-1', 'checkout-1', 'request'))
+        ->toThrow(RuntimeException::class, 'Idempotency request could not be reserved.');
 });
