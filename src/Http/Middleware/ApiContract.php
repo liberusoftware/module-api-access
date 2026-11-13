@@ -95,7 +95,7 @@ final class ApiContract
             return null;
         }
 
-        abort_unless(is_string($value) && preg_match('/^[A-Za-z0-9._~-]{1,128}$/', $value) === 1, 422, 'A valid Idempotency-Key header is required.');
+        abort_unless(preg_match('/^[A-Za-z0-9._~-]{1,128}$/', $value) === 1, 422, 'A valid Idempotency-Key header is required.');
 
         return $value;
     }
@@ -103,7 +103,7 @@ final class ApiContract
     private function identity(Request $request): string
     {
         $actor = $request->user();
-        $team = $actor?->currentTeam;
+        $team = data_get($actor, 'currentTeam');
 
         return hash('sha256', implode('|', [
             (string) ($actor?->getAuthIdentifier() ?? 'guest'),

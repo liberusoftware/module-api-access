@@ -20,7 +20,7 @@
       "name": "api-access"
     }
   },
-  "version": "1.6.0",
+  "version": "1.6.1",
   "autoload-dev": {
     "psr-4": {
       "Liberu\\Foundation\\ApiAccess\\Tests\\": "tests/"
@@ -31,7 +31,8 @@
     "pestphp/pest": "^5.3.3"
   },
   "scripts": {
-    "test": "pest"
+    "test": "pest",
+    "test:coverage": "pest --coverage --min=100"
   },
   "config": {
     "allow-plugins": {
