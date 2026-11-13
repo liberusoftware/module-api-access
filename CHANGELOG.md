@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.1 - 2026-11-13
+
+- Cover token scope and expiry policy, idempotency replay, expiry, isolation, and insert races.
+- Verify conditional API reads and writes, problem responses, and failure cleanup.
+- Handle authenticated actors without an optional current team safely.
+- Enforce 100% source line coverage in CI and `composer test:coverage`.
+
 ## 1.2.2 - 2026-08-06
 
 - Split CI into the three workflows `CONFORMANCE.md` §3.9 asks for, rather than one calling all
